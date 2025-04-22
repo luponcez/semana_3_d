@@ -1,31 +1,25 @@
 package semana3_d.semana3_d;
 
-
-import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
+@Service
 public class EnvioService {
 
-    private List<Envio> envios = new ArrayList<>();
-    private int contadorId = 1;
+    private final EnvioRepository envioRepository;
 
-    public EnvioService() {
-        envios.add(new Envio(contadorId++, "Luis Ponce",  "Santiago, Chile",     "Madrid, España",   "En tránsito", "Santiago, Chile"));
-        envios.add(new Envio(contadorId++, "Matilda Ponce",   "Buenos Aires, Arg.",  "Tokyo, Japón",     "En tránsito", "En vuelo a Japón"));
-        envios.add(new Envio(contadorId++, "Joselin Rodriguez",    "Lima, Perú",          "Miami, EE.UU",     "En aduana",   "Aduana de EE.UU."));
+    public EnvioService(EnvioRepository envioRepository) {
+        this.envioRepository = envioRepository;
     }
 
     public List<Envio> obtenerTodos() {
-        return envios;
+        return envioRepository.findAll();
     }
 
     public Envio obtenerPorId(int id) {
-        return envios.stream()
-                .filter(e -> e.getId() == id)
-                .findFirst()
+        return envioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Envío no encontrado con ID: " + id
                 ));
@@ -33,21 +27,33 @@ public class EnvioService {
 
     public Envio registrar(Envio nuevo) {
         validarEnvio(nuevo);
-
-        nuevo.setId(contadorId++);
-        envios.add(nuevo);
-        return nuevo;
+        return envioRepository.save(nuevo);
     }
 
     public Envio actualizar(int id, Envio datos) {
-        Envio envioExistente = obtenerPorId(id); 
-        if (datos.getEstado() != null && !datos.getEstado().isEmpty()) {
+        Envio envioExistente = obtenerPorId(id);
+        
+        if (datos.getDestinatario() != null) {
+            envioExistente.setDestinatario(datos.getDestinatario());
+        }
+        if (datos.getOrigen() != null) {
+            envioExistente.setOrigen(datos.getOrigen());
+        }
+        if (datos.getDestino() != null) {
+            envioExistente.setDestino(datos.getDestino());
+        }
+        if (datos.getEstado() != null) {
             envioExistente.setEstado(datos.getEstado());
         }
-        if (datos.getUbicacion() != null && !datos.getUbicacion().isEmpty()) {
+        if (datos.getUbicacion() != null) {
             envioExistente.setUbicacion(datos.getUbicacion());
         }
-        return envioExistente;
+        
+        return envioRepository.save(envioExistente);
+    }
+
+    public void eliminar(int id) {
+        envioRepository.deleteById(id);
     }
 
     private void validarEnvio(Envio envio) {

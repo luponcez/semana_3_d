@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Semana3DApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(Semana3DApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(Semana3DApplication.class, args);
+    }
 }
